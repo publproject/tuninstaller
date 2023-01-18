@@ -1,0 +1,13 @@
+[Unit]
+Description=Dropbear Service
+Documentation=https://wildyqing.my.id
+After=network.target nss-lookup.target
+
+[Service]
+User=root
+NoNewPrivileges=true
+ExecStart=/etc/publproject/tuninstaller/bin/dropbear -R -E -F -p 109 -p 110 -b /etc/publproject/tuninstaller/config/banner.conf -P /etc/publproject/tuninstaller/cache/dropbear.pid
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
