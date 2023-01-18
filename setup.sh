@@ -3,7 +3,7 @@
 #  Name        : TunInstaller
 #  Version     : V1.0 ( Stable Releases )
 #  Desc        : Bash script to install Tunnel Service in Linux Server
-#  Author      : PublProject [ Wildy, Dylan ]
+#  Author      : PublProject [ Wildy, 𝑫𝒀𝑳𝑨𝑵 ]
 #  Date        : 18-01-2023
 #  Requirement : Ubuntu 18+, Debian 9+
 #  License     : https://github.com/publproject/tuninstaller/blob/main/LICENSE
