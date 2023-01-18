@@ -354,6 +354,7 @@ curl --silent --ipv4 --disable --no-buffer --url "https://raw.githubusercontent.
 systemctl daemon-reload; systemctl stop api; systemctl disable api; systemctl enable api; systemctl start api
 xray uuid > /etc/publproject/tuninstaller/auth-token.txt
 
+cd /root/; rm -rf setup.sh
 clear
 echo "Installation Complete
 this is ur API Keys : $(cat /etc/publproject/tuninstaller/auth-token.txt)"
