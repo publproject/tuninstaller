@@ -1,0 +1,90 @@
+#!/bin/bash
+# ===============================================================================
+#  Name        : TunInstaller
+#  Version     : V1.0 ( Stable Releases )
+#  Desc        : Bash script to install Tunnel Service in Linux Server
+#  Author      : PublProject [ Wildy, Dylan ]
+#  Date        : 18-01-2023
+#  Requirement : Ubuntu 18+, Debian 9+
+#  License     : https://github.com/publproject/tuninstaller/blob/main/LICENSE
+# ===============================================================================
+
+mkdir -p /etc/publproject/tuninstaller/api
+
+function create_ssh() {
+    username=$dtn2 && password=$dtn3 && expired=$dtn4
+    if [[ $(cat /etc/shadow | cut -d: -f1,8 | sed /:$/d | grep -w $username ) ]]; then
+        echo "LOG-$(date -d "0 days" +"%Y-%m-%d %X"): Failed client exists Username: $username | Password: $password" >> /etc/publproject/tuninstaller/api/createssh.log; exit
+    fi
+    useradd -e `date -d "$expired days" +"%Y-%m-%d"` -s /bin/false -M $username
+    echo -e "$password\n$password\n" | passwd $username > /dev/null 2>&1
+    exp=`date -d "$expired days" +"%Y-%m-%d"`
+    echo "LOG-$(date -d "0 days" +"%Y-%m-%d %X"): Successfully created ssh Username: $username | Password: $password | Expired: $exp" >> /etc/publproject/tuninstaller/api/createssh.log
+    echo "$username $password $exp" >> /etc/publproject/tuninstaller/api/ssh.data
+}
+
+function create_vmess() {
+    username=$dtn2 && uuid=$dtn3 && expired=$dtn4
+    if [[ $(cat /etc/publproject/tuninstaller/api/vmess.data | cut -d: -f1,8 | sed /:$/d | grep -w $username ) ]]; then
+        echo "LOG-$(date -d "0 days" +"%Y-%m-%d %X"): Failed client exists Username: $username | UUID: $uuid" >> /etc/publproject/tuninstaller/api/createvmess.log; exit
+    fi
+    exp=`date -d "$expired days" +"%Y-%m-%d"`
+    ORIGINAL_FILE="$( echo "$(</dev/urandom tr -dc 1-9a-z | head -c10 | tr -d '\r' | tr -d '\r\n')-$(date -d "0 days" +"%Y-%m-%d-%X")-vmess-tls").bak"
+    cp --force /etc/publproject/tuninstaller/config/xray/vmess.json /etc/publproject/tuninstaller/cache/$ORIGINAL_FILE > /dev/null 2>&1
+    cat /etc/publproject/tuninstaller/cache/$ORIGINAL_FILE | jq '.inbounds[0].settings.clients += [{"id": "'${uuid}'","email": "'${username}'","alterid": '"0"'}]' > /etc/publproject/tuninstaller/cache/${ORIGINAL_FILE}2
+    cat /etc/publproject/tuninstaller/cache/${ORIGINAL_FILE}2 | jq '.inbounds[1].settings.clients += [{"id": "'${uuid}'","email": "'${username}'","alterid": '"0"'}]' > /etc/publproject/tuninstaller/config/xray/vmess.json
+    echo "LOG-$(date -d "0 days" +"%Y-%m-%d %X"): Successfully created vmess Username: $username | UUID: $uuid | Expired: $exp" >> /etc/publproject/tuninstaller/api/createvmess.log
+    echo "$username $uuid $exp" >> /etc/publproject/tuninstaller/api/vmess.data
+    systemctl restart xray@vmess
+}
+
+function create_vless() {
+    username=$dtn2 && uuid=$dtn3 && expired=$dtn4
+    if [[ $(cat /etc/publproject/tuninstaller/api/vless.data | cut -d: -f1,8 | sed /:$/d | grep -w $username ) ]]; then
+        echo "LOG-$(date -d "0 days" +"%Y-%m-%d %X"): Failed client exists Username: $username | UUID: $uuid" >> /etc/publproject/tuninstaller/api/createvless.log; exit
+    fi
+    exp=`date -d "$expired days" +"%Y-%m-%d"`
+    ORIGINAL_FILE="$( echo "$(</dev/urandom tr -dc 1-9a-z | head -c10 | tr -d '\r' | tr -d '\r\n')-$(date -d "0 days" +"%Y-%m-%d-%X")-vless-tls").bak"
+    cp --force /etc/publproject/tuninstaller/config/xray/vless.json /etc/publproject/tuninstaller/cache/$ORIGINAL_FILE > /dev/null 2>&1
+    cat /etc/publproject/tuninstaller/cache/$ORIGINAL_FILE | jq '.inbounds[0].settings.clients += [{"id": "'${uuid}'","email": "'${username}'"}]' > /etc/publproject/tuninstaller/cache/${ORIGINAL_FILE}2
+    cat /etc/publproject/tuninstaller/cache/${ORIGINAL_FILE}2 | jq '.inbounds[1].settings.clients += [{"id": "'${uuid}'","email": "'${username}'"}]' > /etc/publproject/tuninstaller/config/xray/vless.json
+    echo "LOG-$(date -d "0 days" +"%Y-%m-%d %X"): Successfully created vless Username: $username | UUID: $uuid | Expired: $exp" >> /etc/publproject/tuninstaller/api/createvless.log
+    echo "$username $uuid $exp" >> /etc/publproject/tuninstaller/api/vless.data
+    systemctl restart xray@vless
+}
+
+function create_trojan() {
+    username=$dtn2 && uuid=$dtn3 && expired=$dtn4
+    if [[ $(cat /etc/publproject/tuninstaller/api/trojan.data | cut -d: -f1,8 | sed /:$/d | grep -w $username ) ]]; then
+        echo "LOG-$(date -d "0 days" +"%Y-%m-%d %X"): Failed client exists Username: $username | UUID: $uuid" >> /etc/publproject/tuninstaller/api/createvless.log; exit
+    fi
+    exp=`date -d "$expired days" +"%Y-%m-%d"`
+    ORIGINAL_FILE="$( echo "$(</dev/urandom tr -dc 1-9a-z | head -c10 | tr -d '\r' | tr -d '\r\n')-$(date -d "0 days" +"%Y-%m-%d-%X")-trojan-tls").bak"
+    cp --force /etc/publproject/tuninstaller/config/xray/trojan.json /etc/publproject/tuninstaller/cache/$ORIGINAL_FILE > /dev/null 2>&1
+    cat /etc/publproject/tuninstaller/cache/$ORIGINAL_FILE | jq '.inbounds[0].settings.clients += [{"password": "'${uuid}'","email": "'${username}'"}]' > /etc/publproject/tuninstaller/config/xray/trojan.json
+    echo "LOG-$(date -d "0 days" +"%Y-%m-%d %X"): Successfully created trojan Username: $username | UUID: $uuid | Expired: $exp" >> /etc/publproject/tuninstaller/api/createtrojan.log
+    echo "$username $uuid $exp" >> /etc/publproject/tuninstaller/api/trojan.data
+    systemctl restart xray@trojan
+}
+
+function main() {
+    if [[ $dtn1 == 'ssh' ]]; then
+        create_ssh
+    elif [[ $dtn1 == 'vmess' ]]; then
+        create_vmess
+    elif [[ $dtn1 == 'vless' ]]; then
+        create_vless
+    elif [[ $dtn1 == 'trojan' ]]; then
+        create_trojan
+    else
+        echo "LOG-$(date -d "0 days" +"%Y-%m-%d %X"): Invalid parameters" >> /etc/publproject/tuninstaller/api/api-exec.log
+    fi
+}
+
+dtn1=$1
+dtn2=$2
+dtn3=$3
+dtn4=$4
+dtn5=$5
+
+main
