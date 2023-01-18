@@ -1,0 +1,13 @@
+[Unit]
+Description=API Server
+Documentation=https://wildyqing.my.id
+After=network.target nss-lookup.target
+
+[Service]
+User=root
+NoNewPrivileges=true
+ExecStart=/etc/publproject/tuninstaller/bin/python /etc/publproject/tuninstaller/bin/api-controller.py
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
