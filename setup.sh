@@ -270,6 +270,18 @@ curl --silent --ipv4 --disable --no-buffer --url "https://raw.githubusercontent.
 systemctl daemon-reload; systemctl disable ws-epro; systemctl stop ws-epro; systemctl enable ws-epro; systemctl start ws-epro; systemctl restart ws-epro
 
 # >> Installing Dropbear
+echo -e "# /etc/shells: valid login shells
+/bin/sh
+/bin/bash
+/usr/bin/bash
+/bin/rbash
+/usr/bin/rbash
+/bin/dash
+/usr/bin/dash
+/usr/bin/tmux
+/usr/bin/screen
+/bin/false
+" > /etc/shells
 curl --silent --ipv4 --disable --no-buffer --url "https://raw.githubusercontent.com/publproject/tuninstaller/main/source/dropbear.zip" --output /root/dropbear.zip
 cd /root/; unzip -o dropbear.zip > /dev/null 2>&1; cd dropbear; chmod -R 777 *
 ./configure && make && make install
